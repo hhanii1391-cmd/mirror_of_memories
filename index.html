@@ -198,28 +198,7 @@
         <button onclick="ویرایش(${i})" style="background-color: #8b7355; font-size: 12px; padding: 6px 12px; margin-top: 10px; margin-left: 5px;">ویرایش</button>
         <button onclick="حذف(${i})" style="background-color: #c62828; font-size: 12px; padding: 6px 12px; margin-top: 10px;">حذف</button>
       </div>
-    `;
   }
-}
-
-  // تابع حذف
-  function حذف(اندیس) {
-    if (confirm("مطمئنی می‌خوای این خاطره رو حذف کنی؟")) {
-      خاطرات.splice(اندیس, 1);
-      localStorage.setItem("خاطرات", JSON.stringify(خاطرات));
-      نمایشخاطرات();
-    }
-
-  document.getElementById("متن").value = خ.متن;
-  document.getElementById("تاریخ").value = خ.تاریخ;
-  document.getElementById("تگها").value = خ.تگها.join(", ");
-
-  درحالویرایش = اندیس;
-  document.getElementById("دکمه‌ثبت").innerHTML = "ذخیره تغییرات";
-
-  // برو بالا
-  window.scrollTo({ top: 0, behavior: "smooth" });
-}
 
   // وقتی صفحه باز می‌شه، خاطرات رو نشون بده
   نمایشخاطرات();
