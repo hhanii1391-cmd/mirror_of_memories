@@ -103,7 +103,7 @@
     <input type="text" id="تاریخ" placeholder="تاریخ (مثلاً 1405/07/09)">
     <input type="text" id="تگها" placeholder="تگ‌ها (با کاما جدا کن)">
     <br>
-    <button onclick="ثبت()">ثبت خاطره</button>
+    <button id="دکمه‌ثبت" onclick="ثبت()">ثبت خاطره</button>
   </div>
 
   <!-- بخش جستجو -->
@@ -123,51 +123,55 @@
 <script>
   // خاطرات رو از حافظه می‌خونیم
   let خاطرات = JSON.parse(localStorage.getItem("خاطرات")) || [];
+  let درحالویرایش = -1;
 
   // تابع ثبت خاطره
   function ثبت() {
-    let متن = document.getElementById("متن").value.trim();
-    let تاریخ = document.getElementById("تاریخ").value.trim();
-    let تگها = document.getElementById("تگها").value.trim();
+  let متن = document.getElementById("متن").value.trim();
+  let تاریخ = document.getElementById("تاریخ").value.trim();
+  let تگها = document.getElementById("تگها").value.trim();
 
-    // اگه متن یا تاریخ خالی بود
-    if (متن === "") {
-      alert("لطفاً یه خاطره بنویس!");
-      return;
-    }
-    if (تاریخ === "") {
-      alert("لطفاً تاریخ رو وارد کن!");
-      return;
-    }
+  if (متن === "") {
+    alert("لطفاً یه خاطره بنویس!");
+    return;
+  }
+  if (تاریخ === "") {
+    alert("لطفاً تاریخ رو وارد کن!");
+    return;
+  }
 
-    // تبدیل تگ‌ها به آرایه
-    let آرایهتگ = [];
-    if (تگها !== "") {
-      آرایهتگ = تگها.split(",").map(t => t.trim());
-    }
+  let آرایهتگ = [];
+  if (تگها !== "") {
+    آرایهتگ = تگها.split(",").map(t => t.trim());
+  }
 
-    // ساختن شیء خاطره
+  if (درحالویرایش === -1) {
+    // حالت جدید: یه خاطره‌ی تازه بساز
     let خاطرهجدید = {
       متن: متن,
       تاریخ: تاریخ,
       تگها: آرایهتگ
     };
-
-    // اضافه کردن به آرایه
     خاطرات.push(خاطرهجدید);
-
-    // ذخیره توی حافظه
-    localStorage.setItem("خاطرات", JSON.stringify(خاطرات));
-
-    // پاک کردن کادرها
-    document.getElementById("متن").value = "";
-    document.getElementById("تگها").value = "";
-
-    // آپدیت لیست
-    نمایشخاطرات();
-
     alert("خاطره ثبت شد! 🌱");
+  } else {
+    // حالت ویرایش: خاطره‌ی قبلی رو آپدیت کن
+    خاطرات[درحالویرایش].متن = متن;
+    خاطرات[درحالویرایش].تاریخ = تاریخ;
+    خاطرات[درحالویرایش].تگها = آرایهتگ;
+    
+    درحالویرایش = -1;
+    document.getElementById("دکمه‌ثبت").innerHTML = "ثبت خاطره";
+    alert("خاطره ویرایش شد! ✏️");
   }
+
+  localStorage.setItem("خاطرات", JSON.stringify(خاطرات));
+
+  document.getElementById("متن").value = "";
+  document.getElementById("تگها").value = "";
+
+  نمایشخاطرات();
+}
 
   // تابع نمایش خاطرات
   function نمایشخاطرات() {
@@ -192,7 +196,9 @@
           <div class="تاریخ">📅 ${خ.تاریخ}</div>
           <div class="متن">${خ.متن}</div>
           <div>${تگهاHTML}</div>
-          <button onclick="حذف(${i})" style="background-color: #c62828; font-size: 12px; padding: 6px 12px; margin-top: 10px;">حذف</button>
+          <button onclick="حذف(${i})" 
+          <button onclick="ویرایش(${i})" style="background-color: #8b7355; font-size: 12px; padding: 6px 12px; margin-top: 10px; margin-left: 5px;">ویرایش</button>
+style="background-color: #c62828; font-size: 12px; padding: 6px 12px; margin-top: 10px;">حذف</button>
         </div>
       `;
     }
@@ -206,6 +212,19 @@
       نمایشخاطرات();
     }
   }
+function ویرایش(اندیس) {
+  let خ = خاطرات[اندیس];
+
+  document.getElementById("متن").value = خ.متن;
+  document.getElementById("تاریخ").value = خ.تاریخ;
+  document.getElementById("تگها").value = خ.تگها.join(", ");
+
+  درحالویرایش = اندیس;
+  document.getElementById("دکمه‌ثبت").innerHTML = "ذخیره تغییرات";
+
+  // برو بالا
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
 
   // وقتی صفحه باز می‌شه، خاطرات رو نشون بده
   نمایشخاطرات();
