@@ -108,11 +108,11 @@
 
   <!-- بخش جستجو -->
   <div class="کادر">
-  <h3>🔍 بگرد توی خاطرات</h3>
-  <input type="text" id="جستجو" placeholder="تاریخ رو وارد کن (مثلاً 1405/07/09)">
-  <button onclick="جستجو()">بگرد</button>
-  <div id="نتیجه‌جستجو"></div>
-</div>
+    <h3>🔍 بگرد توی خاطرات</h3>
+    <input type="text" id="جستجو" placeholder="تاریخ رو وارد کن (مثلاً 1405/07/09)">
+    <button onclick="جستجو()">بگرد</button>
+    <div id="نتیجه‌جستجو"></div>
+  </div>
 
   <!-- بخش لیست خاطرات -->
   <div class="کادر">
@@ -120,177 +120,196 @@
     <div id="لیست‌خاطرات"></div>
   </div>
 
-<script>
-  // خاطرات رو از حافظه می‌خونیم
-  let خاطرات = JSON.parse(localStorage.getItem("خاطرات")) || [];
-  let درحالویرایش = -1;
+  <script>
+    // خاطرات رو از حافظه می‌خونیم
+    let خاطرات = JSON.parse(localStorage.getItem("خاطرات")) || [];
+    let درحالویرایش = -1;
 
-  // تابع ثبت خاطره
-  function ثبت() {
-  let متن = document.getElementById("متن").value.trim();
-  let تاریخ = document.getElementById("تاریخ").value.trim();
-  let تگها = document.getElementById("تگها").value.trim();
+    // تابع ثبت / ویرایش خاطره
+    function ثبت() {
+      let متن = document.getElementById("متن").value.trim();
+      let تاریخ = document.getElementById("تاریخ").value.trim();
+      let تگها = document.getElementById("تگها").value.trim();
 
-  if (متن === "") {
-    alert("لطفاً یه خاطره بنویس!");
-    return;
-  }
-  if (تاریخ === "") {
-    alert("لطفاً تاریخ رو وارد کن!");
-    return;
-  }
+      if (متن === "") {
+        alert("لطفاً یه خاطره بنویس!");
+        return;
+      }
+      if (تاریخ === "") {
+        alert("لطفاً تاریخ رو وارد کن!");
+        return;
+      }
 
-  let آرایهتگ = [];
-  if (تگها !== "") {
-    آرایهتگ = تگها.split(",").map(t => t.trim());
-  }
+      let آرایهتگ = [];
+      if (تگها !== "") {
+        آرایهتگ = تگها.split(",").map(t => t.trim());
+      }
 
-  if (درحالویرایش === -1) {
-    // حالت جدید: یه خاطره‌ی تازه بساز
-    let خاطرهجدید = {
-      متن: متن,
-      تاریخ: تاریخ,
-      تگها: آرایهتگ
-    };
-    خاطرات.push(خاطرهجدید);
-    alert("خاطره ثبت شد! 🌱");
-  } else {
-    // حالت ویرایش: خاطره‌ی قبلی رو آپدیت کن
-    خاطرات[درحالویرایش].متن = متن;
-    خاطرات[درحالویرایش].تاریخ = تاریخ;
-    خاطرات[درحالویرایش].تگها = آرایهتگ;
-    
-    درحالویرایش = -1;
-    document.getElementById("دکمه‌ثبت").innerHTML = "ثبت خاطره";
-    alert("خاطره ویرایش شد! ✏️");
-  }
+      if (درحالویرایش === -1) {
+        // حالت جدید
+        let خاطرهجدید = {
+          متن: متن,
+          تاریخ: تاریخ,
+          تگها: آرایهتگ
+        };
+        خاطرات.push(خاطرهجدید);
+        alert("خاطره ثبت شد! 🌱");
+      } else {
+        // حالت ویرایش
+        خاطرات[درحالویرایش].متن = متن;
+        خاطرات[درحالویرایش].تاریخ = تاریخ;
+        خاطرات[درحالویرایش].تگها = آرایهتگ;
 
-  localStorage.setItem("خاطرات", JSON.stringify(خاطرات));
+        درحالویرایش = -1;
+        document.getElementById("دکمه‌ثبت").innerHTML = "ثبت خاطره";
+        alert("خاطره ویرایش شد! ✏️");
+      }
 
-  document.getElementById("متن").value = "";
-  document.getElementById("تگها").value = "";
+      localStorage.setItem("خاطرات", JSON.stringify(خاطرات));
 
-  نمایشخاطرات();
-}
+      document.getElementById("متن").value = "";
+      document.getElementById("تگها").value = "";
 
-  // تابع نمایش خاطرات
-  function نمایشخاطرات() {
-  let لیست = document.getElementById("لیست‌خاطرات");
-  لیست.innerHTML = "";
-
-  if (خاطرات.length === 0) {
-    لیست.innerHTML = "<p style='color: #a89078;'>هنوز خاطره‌ای ثبت نشده.</p>";
-    return;
-  }
-
-  for (let i = خاطرات.length - 1; i >= 0; i--) {
-    let خ = خاطرات[i];
-    let تگهاHTML = "";
-    for (let j = 0; j < خ.تگها.length; j++) {
-      تگهاHTML += "<span class='تگ'>#" + خ.تگها[j] + "</span>";
+      نمایشخاطرات();
     }
 
-    لیست.innerHTML += `
-      <div class="خاطره">
-        <div class="تاریخ">📅 ${خ.تاریخ}</div>
-        <div class="متن">${خ.متن}</div>
-        <div>${تگهاHTML}</div>
-        <button onclick="ویرایش(${i})" style="background-color: #8b7355; font-size: 12px; padding: 6px 12px; margin-top: 10px; margin-left: 5px;">ویرایش</button>
-        <button onclick="حذف(${i})" style="background-color: #c62828; font-size: 12px; padding: 6px 12px; margin-top: 10px;">حذف</button>
-      </div>
-  }
+    // تابع نمایش خاطرات
+    function نمایشخاطرات() {
+      let لیست = document.getElementById("لیست‌خاطرات");
+      لیست.innerHTML = "";
 
-  // وقتی صفحه باز می‌شه، خاطرات رو نشون بده
-  نمایشخاطرات();
+      if (خاطرات.length === 0) {
+        لیست.innerHTML = "<p style='color: #a89078;'>هنوز خاطره‌ای ثبت نشده.</p>";
+        return;
+      }
 
-function جستجو() {
-  let تاریخجستجو = document.getElementById("جستجو").value.trim();
-  let نتیجه = document.getElementById("نتیجه‌جستجو");
+      for (let i = خاطرات.length - 1; i >= 0; i--) {
+        let خ = خاطرات[i];
+        let تگهاHTML = "";
+        for (let j = 0; j < خ.تگها.length; j++) {
+          تگهاHTML += "<span class='تگ'>#" + خ.تگها[j] + "</span>";
+        }
 
-  if (تاریخجستجو === "") {
-    نتیجه.innerHTML = "<p style='color: #a89078;'>لطفاً یه تاریخ وارد کن.</p>";
-    return;
-  }
-
-  // تجزیه تاریخ (فرمت: 1405/07/09)
-  let بخش‌ها = تاریخجستجو.split("/");
-  if (بخش‌ها.length !== 3) {
-    نتیجه.innerHTML = "<p style='color: #c62828;'>فرمت تاریخ درست نیست. مثل 1405/07/09 بنویس.</p>";
-    return;
-  }
-
-  let سال = Number(بخش‌ها[0]);
-  let ماه = Number(بخش‌ها[1]);
-  let روز = Number(بخش‌ها[2]);
-
-  // محاسبه ۷ روز (۳ روز قبل و ۳ روز بعد)
-  let روزهای‌هفته = [];
-
-  for (let i = -3; i <= 3; i++) {
-    let روزجدید = روز + i;
-    let ماهجدید = ماه;
-    let سالجدید = سال;
-
-    // اگه روز از ۳۰ رد شد
-    if (روزجدید > 30) {
-      روزجدید = روزجدید - 30;
-      ماهجدید = ماه + 1;
-      if (ماهجدید > 12) {
-        ماهجدید = 1;
-        سالجدید = سال + 1;
+        لیست.innerHTML += `
+          <div class="خاطره">
+            <div class="تاریخ">📅 ${خ.تاریخ}</div>
+            <div class="متن">${خ.متن}</div>
+            <div>${تگهاHTML}</div>
+            <button onclick="ویرایش(${i})" style="background-color: #8b7355; font-size: 12px; padding: 6px 12px; margin-top: 10px; margin-left: 5px;">ویرایش</button>
+            <button onclick="حذف(${i})" style="background-color: #c62828; font-size: 12px; padding: 6px 12px; margin-top: 10px;">حذف</button>
+          </div>
+        `;
       }
     }
 
-    // اگه روز منفی شد
-    if (روزجدید < 1) {
-      روزجدید = روزجدید + 30;
-      ماهجدید = ماه - 1;
-      if (ماهجدید < 1) {
-        ماهجدید = 12;
-        سالجدید = سال - 1;
+    // تابع حذف
+    function حذف(اندیس) {
+      if (confirm("مطمئنی می‌خوای این خاطره رو حذف کنی؟")) {
+        خاطرات.splice(اندیس, 1);
+        localStorage.setItem("خاطرات", JSON.stringify(خاطرات));
+        نمایشخاطرات();
       }
     }
 
-    // فرمت‌دهی با صفر
-    let فرمت = سالجدید + "/" + 
-                (ماهجدید < 10 ? "0" + ماهجدید : ماهجدید) + "/" + 
-                (روزجدید < 10 ? "0" + روزجدید : روزجدید);
-    
-    روزهای‌هفته.push(فرمت);
-  }
+    // تابع ویرایش
+    function ویرایش(اندیس) {
+      let خ = خاطرات[اندیس];
 
-  // حالا خاطرات رو توی این ۷ روز بگرد
-  let پیدا_شده = [];
-  for (let i = 0; i < خاطرات.length; i++) {
-    if (روزهای‌هفته.includes(خاطرات[i].تاریخ)) {
-      پیدا_شده.push(خاطرات[i]);
+      document.getElementById("متن").value = خ.متن;
+      document.getElementById("تاریخ").value = خ.تاریخ;
+      document.getElementById("تگها").value = خ.تگها.join(", ");
+
+      درحالویرایش = اندیس;
+      document.getElementById("دکمه‌ثبت").innerHTML = "ذخیره تغییرات";
+
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
-  }
 
-  if (پیدا_شده.length === 0) {
-    نتیجه.innerHTML = "<p style='color: #a89078;'>توی این هفته خاطره‌ای پیدا نشد.</p>";
-    return;
-  }
+    // تابع جستجو
+    function جستجو() {
+      let تاریخجستجو = document.getElementById("جستجو").value.trim();
+      let نتیجه = document.getElementById("نتیجه‌جستجو");
 
-  // نمایش
-  let HTML = "<h4 style='color: #8b7355;'>خاطرات این هفته:</h4>";
-  for (let i = 0; i < پیدا_شده.length; i++) {
-    let خ = پیدا_شده[i];
-    let تگهاHTML = "";
-    for (let j = 0; j < خ.تگها.length; j++) {
-      تگهاHTML += "<span class='تگ'>#" + خ.تگها[j] + "</span>";
+      if (تاریخجستجو === "") {
+        نتیجه.innerHTML = "<p style='color: #a89078;'>لطفاً یه تاریخ وارد کن.</p>";
+        return;
+      }
+
+      let بخش‌ها = تاریخجستجو.split("/");
+      if (بخش‌ها.length !== 3) {
+        نتیجه.innerHTML = "<p style='color: #c62828;'>فرمت تاریخ درست نیست. مثل 1405/07/09 بنویس.</p>";
+        return;
+      }
+
+      let سال = Number(بخش‌ها[0]);
+      let ماه = Number(بخش‌ها[1]);
+      let روز = Number(بخش‌ها[2]);
+
+      let روزهای‌هفته = [];
+
+      for (let i = -3; i <= 3; i++) {
+        let روزجدید = روز + i;
+        let ماهجدید = ماه;
+        let سالجدید = سال;
+
+        if (روزجدید > 30) {
+          روزجدید = روزجدید - 30;
+          ماهجدید = ماه + 1;
+          if (ماهجدید > 12) {
+            ماهجدید = 1;
+            سالجدید = سال + 1;
+          }
+        }
+
+        if (روزجدید < 1) {
+          روزجدید = روزجدید + 30;
+          ماهجدید = ماه - 1;
+          if (ماهجدید < 1) {
+            ماهجدید = 12;
+            سالجدید = سال - 1;
+          }
+        }
+
+        let فرمت = سالجدید + "/" +
+                    (ماهجدید < 10 ? "0" + ماهجدید : ماهجدید) + "/" +
+                    (روزجدید < 10 ? "0" + روزجدید : روزجدید);
+
+        روزهای‌هفته.push(فرمت);
+      }
+
+      let پیدا شده = [];
+      for (let i = 0; i < خاطرات.length; i++) {
+        if (روزهای‌هفته.includes(خاطرات[i].تاریخ)) {
+          پیدا شده.push(خاطرات[i]);
+        }
+      }
+
+      if (پیدا شده.length === 0) {
+        نتیجه.innerHTML = "<p style='color: #a89078;'>توی این هفته خاطره‌ای پیدا نشد.</p>";
+        return;
+      }
+
+      let HTML = "<h4 style='color: #8b7355;'>خاطرات این هفته:</h4>";
+      for (let i = 0; i < پیدا شده.length; i++) {
+        let خ = پیدا شده[i];
+        let تگهاHTML = "";
+        for (let j = 0; j < خ.تگها.length; j++) {
+          تگهاHTML += "<span class='تگ'>#" + خ.تگها[j] + "</span>";
+        }
+        HTML += `
+          <div class="خاطره">
+            <div class="تاریخ">📅 ${خ.تاریخ}</div>
+            <div class="متن">${خ.متن}</div>
+            <div>${تگهاHTML}</div>
+          </div>
+        `;
+      }
+
+      نتیجه.innerHTML = HTML;
     }
-    HTML += `
-      <div class="خاطره">
-        <div class="تاریخ">📅 ${خ.تاریخ}</div>
-        <div class="متن">${خ.متن}</div>
-        <div>${تگهاHTML}</div>
-      </div>
-    `;
-  }
 
-  نتیجه.innerHTML = HTML;
-}
-</script>
+    // وقتی صفحه باز می‌شه، خاطرات رو نشون بده
+    نمایشخاطرات();
+  </script>
 </body>
 </html>
