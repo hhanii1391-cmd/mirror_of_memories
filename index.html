@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🪞 آینه خاطرات</title>
+  <style>
+    body {
+      background-color: #f5f0e8;
+      font-family: Tahoma;
+      text-align: center;
+      padding: 20px;
+      color: #5d4e37;
+    }
+    h1 {
+      color: #8b7355;
+      margin-bottom: 30px;
+    }
+    .کادر {
+      background-color: #fffaf0;
+      border: 2px solid #d4c5a9;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px auto;
+      max-width: 500px;
+      box-shadow: 0 2px 8px rgba(139, 115, 85, 0.1);
+    }
+    textarea {
+      width: 90%;
+      min-height: 100px;
+      padding: 10px;
+      border: 2px solid #d4c5a9;
+      border-radius: 8px;
+      font-family: Tahoma;
+      font-size: 15px;
+      background-color: #fdfaf3;
+      resize: vertical;
+    }
+    input {
+      padding: 10px;
+      border: 2px solid #d4c5a9;
+      border-radius: 8px;
+      font-family: Tahoma;
+      font-size: 14px;
+      background-color: #fdfaf3;
+      margin: 5px;
+    }
+    button {
+      background-color: #8b7355;
+      color: #fffaf0;
+      padding: 12px 28px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-family: Tahoma;
+      cursor: pointer;
+      margin-top: 15px;
+    }
+    button:hover {
+      background-color: #6d5a42;
+    }
+    #لیست‌خاطرات {
+      text-align: right;
+    }
+    .خاطره {
+      background-color: #fdfaf3;
+      border-right: 4px solid #8b7355;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 8px;
+    }
+    .تاریخ {
+      color: #a89078;
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+    .متن {
+      color: #5d4e37;
+      font-size: 15px;
+      line-height: 1.7;
+      margin-bottom: 8px;
+    }
+    .تگ {
+      display: inline-block;
+      background-color: #e8dcc4;
+      color: #6d5a42;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      margin: 2px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🪞 آینه خاطرات</h1>
+
+  <!-- بخش ثبت خاطره -->
+  <div class="کادر">
+    <h3>امروز چطور بود؟</h3>
+    <textarea id="متن" placeholder="اینجا بنویس..."></textarea>
+    <br>
+    <input type="text" id="تاریخ" placeholder="تاریخ (مثلاً 1405/07/09)">
+    <input type="text" id="تگها" placeholder="تگ‌ها (با کاما جدا کن)">
+    <br>
+    <button onclick="ثبت()">ثبت خاطره</button>
+  </div>
+
+  <!-- بخش جستجو -->
+  <div class="کادر">
+  <h3>🔍 بگرد توی خاطرات</h3>
+  <input type="text" id="جستجو" placeholder="تاریخ رو وارد کن (مثلاً 1405/07/09)">
+  <button onclick="جستجو()">بگرد</button>
+  <div id="نتیجه‌جستجو"></div>
+</div>
+
+  <!-- بخش لیست خاطرات -->
+  <div class="کادر">
+    <h3>📖 همه‌ی خاطرات</h3>
+    <div id="لیست‌خاطرات"></div>
+  </div>
+
+<script>
+  // خاطرات رو از حافظه می‌خونیم
+  let خاطرات = JSON.parse(localStorage.getItem("خاطرات")) || [];
+
+  // تابع ثبت خاطره
+  function ثبت() {
+    let متن = document.getElementById("متن").value.trim();
+    let تاریخ = document.getElementById("تاریخ").value.trim();
+    let تگها = document.getElementById("تگها").value.trim();
+
+    // اگه متن یا تاریخ خالی بود
+    if (متن === "") {
+      alert("لطفاً یه خاطره بنویس!");
+      return;
+    }
+    if (تاریخ === "") {
+      alert("لطفاً تاریخ رو وارد کن!");
+      return;
+    }
+
+    // تبدیل تگ‌ها به آرایه
+    let آرایهتگ = [];
+    if (تگها !== "") {
+      آرایهتگ = تگها.split(",").map(t => t.trim());
+    }
+
+    // ساختن شیء خاطره
+    let خاطرهجدید = {
+      متن: متن,
+      تاریخ: تاریخ,
+      تگها: آرایهتگ
+    };
+
+    // اضافه کردن به آرایه
+    خاطرات.push(خاطرهجدید);
+
+    // ذخیره توی حافظه
+    localStorage.setItem("خاطرات", JSON.stringify(خاطرات));
+
+    // پاک کردن کادرها
+    document.getElementById("متن").value = "";
+    document.getElementById("تگها").value = "";
+
+    // آپدیت لیست
+    نمایشخاطرات();
+
+    alert("خاطره ثبت شد! 🌱");
+  }
+
+  // تابع نمایش خاطرات
+  function نمایشخاطرات() {
+    let لیست = document.getElementById("لیست‌خاطرات");
+    لیست.innerHTML = "";
+
+    if (خاطرات.length === 0) {
+      لیست.innerHTML = "<p style='color: #a89078;'>هنوز خاطره‌ای ثبت نشده.</p>";
+      return;
+    }
+
+    // جدیدترین اول
+    for (let i = خاطرات.length - 1; i >= 0; i--) {
+      let خ = خاطرات[i];
+      let تگهاHTML = "";
+      for (let j = 0; j < خ.تگها.length; j++) {
+        تگهاHTML += "<span class='تگ'>#" + خ.تگها[j] + "</span>";
+      }
+
+      لیست.innerHTML += `
+        <div class="خاطره">
+          <div class="تاریخ">📅 ${خ.تاریخ}</div>
+          <div class="متن">${خ.متن}</div>
+          <div>${تگهاHTML}</div>
+          <button onclick="حذف(${i})" style="background-color: #c62828; font-size: 12px; padding: 6px 12px; margin-top: 10px;">حذف</button>
+        </div>
+      `;
+    }
+  }
+
+  // تابع حذف
+  function حذف(اندیس) {
+    if (confirm("مطمئنی می‌خوای این خاطره رو حذف کنی؟")) {
+      خاطرات.splice(اندیس, 1);
+      localStorage.setItem("خاطرات", JSON.stringify(خاطرات));
+      نمایشخاطرات();
+    }
+  }
+
+  // وقتی صفحه باز می‌شه، خاطرات رو نشون بده
+  نمایشخاطرات();
+
+function جستجو() {
+  let تاریخجستجو = document.getElementById("جستجو").value.trim();
+  let نتیجه = document.getElementById("نتیجه‌جستجو");
+
+  if (تاریخجستجو === "") {
+    نتیجه.innerHTML = "<p style='color: #a89078;'>لطفاً یه تاریخ وارد کن.</p>";
+    return;
+  }
+
+  // تجزیه تاریخ (فرمت: 1405/07/09)
+  let بخش‌ها = تاریخجستجو.split("/");
+  if (بخش‌ها.length !== 3) {
+    نتیجه.innerHTML = "<p style='color: #c62828;'>فرمت تاریخ درست نیست. مثل 1405/07/09 بنویس.</p>";
+    return;
+  }
+
+  let سال = Number(بخش‌ها[0]);
+  let ماه = Number(بخش‌ها[1]);
+  let روز = Number(بخش‌ها[2]);
+
+  // محاسبه ۷ روز (۳ روز قبل و ۳ روز بعد)
+  let روزهای‌هفته = [];
+
+  for (let i = -3; i <= 3; i++) {
+    let روزجدید = روز + i;
+    let ماهجدید = ماه;
+    let سالجدید = سال;
+
+    // اگه روز از ۳۰ رد شد
+    if (روزجدید > 30) {
+      روزجدید = روزجدید - 30;
+      ماهجدید = ماه + 1;
+      if (ماهجدید > 12) {
+        ماهجدید = 1;
+        سالجدید = سال + 1;
+      }
+    }
+
+    // اگه روز منفی شد
+    if (روزجدید < 1) {
+      روزجدید = روزجدید + 30;
+      ماهجدید = ماه - 1;
+      if (ماهجدید < 1) {
+        ماهجدید = 12;
+        سالجدید = سال - 1;
+      }
+    }
+
+    // فرمت‌دهی با صفر
+    let فرمت = سالجدید + "/" + 
+                (ماهجدید < 10 ? "0" + ماهجدید : ماهجدید) + "/" + 
+                (روزجدید < 10 ? "0" + روزجدید : روزجدید);
+    
+    روزهای‌هفته.push(فرمت);
+  }
+
+  // حالا خاطرات رو توی این ۷ روز بگرد
+  let پیدا_شده = [];
+  for (let i = 0; i < خاطرات.length; i++) {
+    if (روزهای‌هفته.includes(خاطرات[i].تاریخ)) {
+      پیدا_شده.push(خاطرات[i]);
+    }
+  }
+
+  if (پیدا_شده.length === 0) {
+    نتیجه.innerHTML = "<p style='color: #a89078;'>توی این هفته خاطره‌ای پیدا نشد.</p>";
+    return;
+  }
+
+  // نمایش
+  let HTML = "<h4 style='color: #8b7355;'>خاطرات این هفته:</h4>";
+  for (let i = 0; i < پیدا_شده.length; i++) {
+    let خ = پیدا_شده[i];
+    let تگهاHTML = "";
+    for (let j = 0; j < خ.تگها.length; j++) {
+      تگهاHTML += "<span class='تگ'>#" + خ.تگها[j] + "</span>";
+    }
+    HTML += `
+      <div class="خاطره">
+        <div class="تاریخ">📅 ${خ.تاریخ}</div>
+        <div class="متن">${خ.متن}</div>
+        <div>${تگهاHTML}</div>
+      </div>
+    `;
+  }
+
+  نتیجه.innerHTML = HTML;
+}
+</script>
+</body>
+</html>
